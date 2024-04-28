@@ -47,9 +47,11 @@ async function run() {
 
     // get item for my list
     app.get("/item/:email", async (req, res) => {
-      const result = await itemCollection.find({ email: req.params.email }).toArray()
+      const quire = { email: req.params.email };
+      const result = await itemCollection.find(quire).toArray();
       res.send(result);
     });
+    // { email: req.params.email }
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
