@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
@@ -47,11 +47,30 @@ async function run() {
 
     // get item for my list
     app.get("/item/:email", async (req, res) => {
-      const quire = { email: req.params.email };
-      const result = await itemCollection.find(quire).toArray();
+      const query = { email: req.params.email };
+      const result = await itemCollection.find(query).toArray();
       res.send(result);
     });
-    // { email: req.params.email }
+
+    // delete item
+    app.delete("/item/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await itemCollection.findOne(query);
+      res.send(result);
+    });
+
+    // update item
+    app.get("/item/:email", async (req, res) => {
+      const query = { email: req.params.email };
+      const result = await itemCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.put("/item/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
