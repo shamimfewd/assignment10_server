@@ -29,6 +29,16 @@ async function run() {
     await client.connect();
 
     const itemCollection = client.db("assignmentDB").collection("items");
+    const subCategoryCollection = client
+      .db("assignmentDB")
+      .collection("categoryItems");
+
+    // subcategory get
+    app.get("/cate", async (req, res) => {
+      const cursor = subCategoryCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     // post item
     app.post("/item", async (req, res) => {
@@ -38,7 +48,6 @@ async function run() {
     });
 
     // get item
-
     app.get("/item", async (req, res) => {
       const cursor = itemCollection.find();
       const result = await cursor.toArray();
@@ -52,24 +61,40 @@ async function run() {
       res.send(result);
     });
 
-    // delete item
+    // delete item=====================
     app.delete("/item/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await itemCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // update item======================
+    app.get("/itemData/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await itemCollection.findOne(query);
       res.send(result);
     });
 
-    // update item
-    app.get("/item/:email", async (req, res) => {
-      const query = { email: req.params.email };
-      const result = await itemCollection.find(query).toArray();
-      res.send(result);
-    });
-
-    app.put("/item/:id", async (req, res) => {
+    app.put("/itemData/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const data = {
+        $set: {
+          itemName: req.body.itemName,
+          price: req.body.price,
+          rating: req.body.rating,
+          shortDescription: req.body.shortDescription,
+          userName: req.body.userName,
+          email: req.body.email,
+          processingTime: req.body.processingTime,
+        },
+      };
+
+      const result = await itemCollection.updateOne(filter, data, options);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
