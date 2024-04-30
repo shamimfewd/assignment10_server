@@ -1,18 +1,19 @@
 const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
+require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
+
+
 
 // middle ware
 app.use(cors());
 app.use(express.json());
 
-// aP28c2e95g3gr0Nn
-// assignment
 
-const uri =
-  "mongodb+srv://assignment:aP28c2e95g3gr0Nn@cluster0.ssblxww.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ssblxww.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -40,17 +41,27 @@ async function run() {
       res.send(result);
     });
 
-    // post item
-    app.post("/item", async (req, res) => {
-      const newItem = req.body;
-      const result = await itemCollection.insertOne(newItem);
-      res.send(result);
-    });
-
     // get item
     app.get("/item", async (req, res) => {
       const cursor = itemCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // get item for subCategory
+
+    app.get("/categoryItems/:subcategory_Name", async (req, res) => {
+      const query = { category: req.params.subcategory_Name };
+      const result = await subCategoryCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // -------separate collection^^^^^^---------------------------------------
+
+    // post item
+    app.post("/item", async (req, res) => {
+      const newItem = req.body;
+      const result = await itemCollection.insertOne(newItem);
       res.send(result);
     });
 
