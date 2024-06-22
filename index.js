@@ -5,13 +5,13 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-
-
 // middle ware
-app.use(cors());
+const corsConfig = {
+  origin: ["http://localhost:5173", ""],
+  credentials: true,
+};
+app.use(cors(corsConfig));
 app.use(express.json());
-
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ssblxww.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -27,7 +27,6 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-  
 
     const itemCollection = client.db("assignmentDB").collection("items");
     const subCategoryCollection = client
@@ -36,25 +35,12 @@ async function run() {
 
     // subcategory get
     app.get("/cate", async (req, res) => {
-      const cursor = subCategoryCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-    });
-
-    // get item
-    app.get("/cate", async (req, res) => {
       const cursor = itemCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
 
-    // get item for subCategory
 
-    app.get("/categoryItems/:subcategory_Name", async (req, res) => {
-      const query = { category: req.params.subcategory_Name };
-      const result = await subCategoryCollection.find(query).toArray();
-      res.send(result);
-    });
 
     // -------separate collection^^^^^^---------------------------------------
 
@@ -103,7 +89,7 @@ async function run() {
           processingTime: req.body.processingTime,
           selectedCategory: req.body.selectedCategory,
           selectedCustomize: req.body.selectedCustomize,
-          selectedStocks: req.body.selectedStocks
+          selectedStocks: req.body.selectedStocks,
         },
       };
 
@@ -112,7 +98,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-   
+
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
